@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">AndroidWear</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="msg1">Message1</string>
+    <string name="msg2">Message2</string>
+    <string name="msg3">Message3</string>
+    <string name="msg4">Message4</string>
+    <string name="msg5">Message5</string>
+
+</resources>

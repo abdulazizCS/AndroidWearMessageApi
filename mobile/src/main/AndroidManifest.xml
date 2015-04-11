@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.abdulaziz.androidwear" >
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <meta-data android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+        <service
+            android:name=".ListenerService" >
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.BIND_LISTENER" />
+            </intent-filter>
+        </service>
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".TestActivity"
+            android:label="@string/app_name" >
+        </activity>
+        <activity
+            android:name=".Msg1Activity"
+            android:label="@string/msg1" >
+        </activity>
+        <activity
+            android:name=".Msg2Activity"
+            android:label="@string/msg2" >
+        </activity>
+        <activity
+            android:name=".Msg3Activity"
+            android:label="@string/msg3" >
+        </activity>
+        <activity
+            android:name=".Msg4Activity"
+            android:label="@string/msg4" >
+        </activity>
+        <activity
+            android:name=".Msg5Activity"
+            android:label="@string/msg5" >
+        </activity>
+    </application>
+
+</manifest>

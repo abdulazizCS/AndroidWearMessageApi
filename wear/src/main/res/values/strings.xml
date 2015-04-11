@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">AndroidWear</string>
+    <string name="hello_round">Hello Round World!</string>
+    <string name="hello_square">Android Wear</string>
+    <string name="btn_toast">Open App</string>
+    <string name="text1">Lunch the App: SingleTap</string>
+    <string name="text2">Message2: DoubleTap</string>
+    <string name="text3">Message3: SwipeUp</string>
+    <string name="text4">Message4: LongPress</string>
+    <string name="text5">Message5: SwipeDown</string>
+
+
+</resources>
