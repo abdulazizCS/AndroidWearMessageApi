@@ -40,6 +40,9 @@ public class MainActivity extends Activity implements SensorEventListener,
     private static final int SHAKE_WAIT_TIME_MS = 250;
     private static final float ROTATION_THRESHOLD = 3.0f;
     private static final int ROTATION_WAIT_TIME_MS = 100;
+    private static final int SWIPE_MIN_DISTANCE = 120;
+    private static final int SWIPE_MAX_OFF_PATH = 250;
+    private static final int SWIPE_THRESHOLD_VELOCITY = 200;
 
     private GestureDetectorCompat mDetector;
     private SensorManager mSensorManager;
@@ -84,7 +87,7 @@ public class MainActivity extends Activity implements SensorEventListener,
             public void onLongPress (MotionEvent e){
                 sendMessage4();
                 // Detected long press
-                //Toast.makeText(getBaseContext(),"Message4 Sent",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getBaseContext(),"Message4 Sent",Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -96,16 +99,32 @@ public class MainActivity extends Activity implements SensorEventListener,
             }
 
             @Override
-            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
-                                    float distanceY) {
-                //sendMessage3();
-                //Toast.makeText(getBaseContext(),"Message3 Sent", Toast.LENGTH_SHORT).show();
-                Log.d(DEBUG_TAG, "onScroll: " + e1.toString()+e2.toString());
-                return true;
+            public boolean onFling(MotionEvent e1, MotionEvent e2,
+                                   float velocityX, float velocityY) {
+                try {
+                    if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH) {
+                        return true;
+                    } else if(Math.abs(e2.getY() - e1.getY()) > SWIPE_MAX_OFF_PATH) {
+                            sendMessage5();
+                            Toast.makeText(getBaseContext(), "Message5 Sent", Toast.LENGTH_SHORT).show();
+                            return true;
+                        }
+
+                    // right to left swipe
+                    if(e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+                        sendMessage3();
+                        Toast.makeText(getBaseContext(), "Message3 Sent", Toast.LENGTH_SHORT).show();
+                    }  else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+                        //Toast.makeText(getBaseContext(), "Right Swipe", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e) {
+                    // nothing
+                }
+                return false;
             }
 
             @Override
-            public boolean onSingleTapUp(MotionEvent e) {
+            public boolean onSingleTapConfirmed(MotionEvent e) {
                 sendMessage1();
                 Toast.makeText(getBaseContext(),"Lunching App...", Toast.LENGTH_SHORT).show();
                 Log.d(DEBUG_TAG, "onSingleTapUp: " + e.toString());
