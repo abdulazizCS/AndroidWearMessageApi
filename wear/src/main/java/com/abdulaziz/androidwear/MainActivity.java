@@ -8,12 +8,12 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v4.view.GestureDetectorCompat;
+import android.support.wearable.view.DismissOverlayView;
 import android.support.wearable.view.WatchViewStub;
 import android.util.FloatMath;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
-import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -34,15 +34,16 @@ public class MainActivity extends Activity implements SensorEventListener,
     private static final String MESSAGE3 = "Sorry, I missed your call.";
     private static final String MESSAGE4 = "Please call me when you get this message.";
     private static final String MESSAGE5 = "I'm in the airport now, I'll talk to you later.";
+    private static final String MESSAGE6 = "Good Bye Phone!";
+
 
 
     private static final float SHAKE_THRESHOLD = 2.1f;
     private static final int SHAKE_WAIT_TIME_MS = 250;
     private static final float ROTATION_THRESHOLD = 3.0f;
     private static final int ROTATION_WAIT_TIME_MS = 100;
-    private static final int SWIPE_MIN_DISTANCE = 120;
-    private static final int SWIPE_MAX_OFF_PATH = 250;
-    private static final int SWIPE_THRESHOLD_VELOCITY = 200;
+    private static final int SWIPE_THRESHOLD = 100;
+    private static final int SWIPE_VELOCITY_THRESHOLD = 100;
 
     private GestureDetectorCompat mDetector;
     private SensorManager mSensorManager;
@@ -52,6 +53,8 @@ public class MainActivity extends Activity implements SensorEventListener,
 
     private GoogleApiClient client;
     private String nodeId;
+
+    private DismissOverlayView mDismissOverlayView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,12 +85,19 @@ public class MainActivity extends Activity implements SensorEventListener,
         // listener.
         mDetector.setOnDoubleTapListener(this);
 
-        mDetector = new GestureDetectorCompat(MainActivity.this, new GestureDetector.SimpleOnGestureListener(){
-            @Override
-            public void onLongPress (MotionEvent e){
-                sendMessage4();
-                // Detected long press
-                Toast.makeText(getBaseContext(),"Message4 Sent",Toast.LENGTH_SHORT).show();
+
+        // Obtain the DismissOverlayView element
+        mDismissOverlayView = (DismissOverlayView) findViewById(R.id.dismiss_overlay);
+
+
+
+            mDetector = new GestureDetectorCompat(this, new GestureDetector.SimpleOnGestureListener() {
+
+                @Override
+            public void onLongPress(MotionEvent e){
+                mDismissOverlayView.show(); // exit wear app
+                //Toast.makeText(getBaseContext(),"LongPress", Toast.LENGTH_SHORT).show();
+
             }
 
             @Override
@@ -101,27 +111,41 @@ public class MainActivity extends Activity implements SensorEventListener,
             @Override
             public boolean onFling(MotionEvent e1, MotionEvent e2,
                                    float velocityX, float velocityY) {
+                boolean result = false;
                 try {
-                    if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH) {
-                        return true;
-                    } else if(Math.abs(e2.getY() - e1.getY()) > SWIPE_MAX_OFF_PATH) {
+                    float diffY = e2.getY() - e1.getY();
+                    float diffX = e2.getX() - e1.getX();
+                    if (Math.abs(diffX) > Math.abs(diffY)) {
+                        if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                            if (diffX > 0) {
+                                sendMessage4();
+                                Toast.makeText(getBaseContext(), "Message4 Sent", Toast.LENGTH_SHORT).show();
+
+                            } else {
+                                sendMessage3();
+                                Toast.makeText(getBaseContext(), "Message3 Sent", Toast.LENGTH_SHORT).show();
+
+                            }
+                        }
+                        result = true;
+
+                    } else if (Math.abs(diffY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
+                        if (diffY > 0) {
                             sendMessage5();
                             Toast.makeText(getBaseContext(), "Message5 Sent", Toast.LENGTH_SHORT).show();
-                            return true;
+                        } else {
+                            //SwipeTop
                         }
-
-                    // right to left swipe
-                    if(e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-                        sendMessage3();
-                        Toast.makeText(getBaseContext(), "Message3 Sent", Toast.LENGTH_SHORT).show();
-                    }  else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-                        //Toast.makeText(getBaseContext(), "Right Swipe", Toast.LENGTH_SHORT).show();
                     }
-                } catch (Exception e) {
-                    // nothing
+
+                    result = true;
+
+                } catch (Exception exception) {
+                    exception.printStackTrace();
                 }
-                return false;
+                return result;
             }
+
 
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
@@ -142,18 +166,6 @@ public class MainActivity extends Activity implements SensorEventListener,
         retrieveDeviceNode();
     }
 
-    /**
-     * Sets up the button for handling click events.
-     */
-    private void setupWidgets() {
-        findViewById(R.id.btn_toast).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //sendMessage1();
-                //Toast.makeText(getBaseContext(),"Lunching App...",Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
 
     @Override
     public void onResume() {
@@ -357,6 +369,22 @@ public class MainActivity extends Activity implements SensorEventListener,
         }
     }
 
+    /**
+     * Sends a message to the connected mobile device, telling it to show a Toast.
+     */
+    private void sendMessage6() {
+        if (nodeId != null) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    client.blockingConnect(CONNECTION_TIME_OUT_MS, TimeUnit.MILLISECONDS);
+                    Wearable.MessageApi.sendMessage(client, nodeId, MESSAGE6, null);
+                    client.disconnect();
+                }
+            }).start();
+        }
+    }
+
     @Override
     public boolean dispatchTouchEvent (MotionEvent e) {
         return mDetector.onTouchEvent(e) || super.dispatchTouchEvent(e);
@@ -364,9 +392,7 @@ public class MainActivity extends Activity implements SensorEventListener,
 
     @Override
     public boolean onTouchEvent(MotionEvent e){
-        this.mDetector.onTouchEvent(e);
-        // Be sure to call the superclass implementation
-        return super.onTouchEvent(e);
+        return mDetector.onTouchEvent(e) || super.onTouchEvent(e);
     }
 
     @Override
