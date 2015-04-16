@@ -91,19 +91,17 @@ public class MainActivity extends Activity implements SensorEventListener,
 
 
 
-            mDetector = new GestureDetectorCompat(this, new GestureDetector.SimpleOnGestureListener() {
-
-                @Override
-            public void onLongPress(MotionEvent e){
+        mDetector = new GestureDetectorCompat(MainActivity.this, new GestureDetector.SimpleOnGestureListener(){
+            @Override
+            public void onLongPress (MotionEvent e){
                 mDismissOverlayView.show(); // exit wear app
-                //Toast.makeText(getBaseContext(),"LongPress", Toast.LENGTH_SHORT).show();
-
+                //Toast.makeText(getBaseContext(),"Long Press",Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public boolean onDoubleTap(MotionEvent e) {
                 sendMessage2();
-                Toast.makeText(getBaseContext(),"Message2 Sent", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getBaseContext(),"Double Tap", Toast.LENGTH_SHORT).show();
                 Log.d(DEBUG_TAG, "onDoubleTap: " + e.toString());
                 return true;
             }
@@ -119,11 +117,11 @@ public class MainActivity extends Activity implements SensorEventListener,
                         if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
                             if (diffX > 0) {
                                 sendMessage4();
-                                Toast.makeText(getBaseContext(), "Message4 Sent", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getBaseContext(), "Left Swipe", Toast.LENGTH_SHORT).show();
 
                             } else {
                                 sendMessage3();
-                                Toast.makeText(getBaseContext(), "Message3 Sent", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getBaseContext(), "Right Swipe", Toast.LENGTH_SHORT).show();
 
                             }
                         }
@@ -132,9 +130,9 @@ public class MainActivity extends Activity implements SensorEventListener,
                     } else if (Math.abs(diffY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
                         if (diffY > 0) {
                             sendMessage5();
-                            Toast.makeText(getBaseContext(), "Message5 Sent", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getBaseContext(), "Down Swipe", Toast.LENGTH_SHORT).show();
                         } else {
-                            //SwipeTop
+                            Toast.makeText(getBaseContext(), "Top Swipe", Toast.LENGTH_SHORT).show();
                         }
                     }
 
@@ -150,7 +148,7 @@ public class MainActivity extends Activity implements SensorEventListener,
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
                 sendMessage1();
-                Toast.makeText(getBaseContext(),"Lunching App...", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getBaseContext(),"Single Tap.", Toast.LENGTH_SHORT).show();
                 Log.d(DEBUG_TAG, "onSingleTapUp: " + e.toString());
                 return true;
             }
